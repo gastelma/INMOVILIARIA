@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Tu Próximo Hogar te Espera! - Agenda tu Cita</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+
+        h1, h2 {
+            color: #2c3e50; /* Un tono de azul formal */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="date"],
+        input[type="time"],
+        select,
+        button {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23333" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position-x: 95%;
+            background-position-y: 50%;
+            background-size: 16px;
+        }
+
+        button {
+            background-color: #3498db; /* Azul más vibrante para la acción */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .confirmation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e0f7fa; /* Un tono claro de azul */
+            border: 1px solid #b2ebf2;
+            border-radius: 4px;
+            color: #00838f;
+            text-align: center;
+        }
+
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffebee; /* Un tono claro de rojo */
+            border: 1px solid #ef9a9a;
+            border-radius: 4px;
+            color: #d32f2f;
+            text-align: center;
+        }
+
+        .calendar-container {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .calendar-day {
+            display: inline-block;
+            width: calc(14.28% - 2px); /* 7 días por semana */
+            text-align: center;
+            padding: 8px 0;
+            border: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .calendar-day.available:hover {
+            background-color: #f0f0f0;
+        }
+
+        .calendar-day.selected {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .time-slot {
+            display: inline-block;
+            padding: 8px 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .time-slot.available:hover {
+            background-color: #f0f0f0;
+        }
+
+        .time-slot.selected {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¡Encuentra el Espacio Perfecto para Ti!</h1>
+        <p style="text-align: center; color: #777; margin-bottom: 20px;">Agenda una visita o recibe asesoría personalizada para dar el siguiente paso hacia tu nuevo hogar o inversión.</p>
+
+        <label for="tipo-cita">¿Qué te gustaría hacer?</label>
+        <select id="tipo-cita">
+            <option value="visita">Visitar Propiedad</option>
+            <option value="asesoria">Recibir Asesoría</option>
+        </select>
+
+        <label for="tipo-propiedad">¿Qué tipo de propiedad buscas?</label>
+        <select id="tipo-propiedad">
+            <option value="casa">Casa</option>
+            <option value="departamento">Departamento</option>
+            <option value="terreno">Terreno</option>
+            <option value="local-comercial">Local Comercial</option>
+            <option value="otro">Otro</option>
+        </select>
+
+        <label for="fecha">Selecciona la fecha:</label>
+        <input type="date" id="fecha">
+
+        <label for="hora">Selecciona la hora:</label>
+        <select id="hora">
+            <option value="9:00">9:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="16:00">4:00 PM</option>
+            <option value="17:00">5:00 PM</option>
+        </select>
+
+        <button onclick="agendarCita()">¡Confirma tu Cita!</button>
+
+        <div id="mensaje" class=""></div>
+    </div>
+
+    <script>
+        function agendarCita() {
+            const tipoCita = document.getElementById("tipo-cita").value;
+            const tipoPropiedad = document.getElementById("tipo-propiedad").value;
+            const fecha = document.getElementById("fecha").value;
+            const hora = document.getElementById("hora").value;
+            const mensajeDiv = document.getElementById("mensaje");
+
+            if (!fecha || !hora) {
+                mensajeDiv.className = "error";
+                mensajeDiv.textContent = "Por favor, selecciona la fecha y la hora para tu cita.";
+                return;
+            }
+
+            // Simulación de disponibilidad (en una aplicación real, esto se haría en el servidor)
+            const citasAgendadas = obtenerCitasAgendadas(fecha);
+            if (citasAgendadas.length >= 8) {
+                mensajeDiv.className = "error";
+                mensajeDiv.textContent = "Lo sentimos, hemos alcanzado el límite de 8 citas para el día seleccionado. Por favor, elige otra fecha.";
+                return;
+            }
+
+            // Simulación de guardar la cita (en una aplicación real, esto se enviaría al servidor)
+            guardarCita(tipoCita, tipoPropiedad, fecha, hora);
+
+            mensajeDiv.className = "confirmation";
+            mensajeDiv.textContent = `Tu cita de ${tipoCita} para ${tipoPropiedad} el día ${fecha} a las ${hora} ha sido agendada con éxito. ¡Te esperamos!`;
+
+            // Opcional: Puedes limpiar el formulario aquí
+            // document.getElementById("fecha").value = "";
+            // document.getElementById("hora").selectedIndex = 0;
+        }
+
+        // Función simulada para obtener citas agendadas para una fecha (reemplazar con lógica de servidor)
+        function obtenerCitasAgendadas(fecha) {
+            // En una aplicación real, consultarías una base de datos.
+            // Aquí, simulamos algunas citas ya agendadas para el 2025-03-27 como ejemplo.
+            const citasEjemplo = [
+                { fecha: '2025-03-27', hora: '9:00' },
+                { fecha: '2025-03-27', hora: '10:00' },
+                { fecha: '2025-03-27', hora: '11:00' },
+                { fecha: '2025-03-27', hora: '14:00' },
+                { fecha: '2025-03-28', hora: '15:00' }
+            ];
+            return citasEjemplo.filter(cita => cita.fecha === fecha);
+        }
+
+        // Función simulada para guardar la cita (reemplazar con lógica de servidor)
+        function guardarCita(tipoCita, tipoPropiedad, fecha, hora) {
+            console.log("Cita agendada:", { tipoCita, tipoPropiedad, fecha, hora });
+            // En una aplicación real, aquí enviarías los datos a tu servidor para guardarlos en una base de datos.
+        }
+    </script>
+</body>
+</html>
